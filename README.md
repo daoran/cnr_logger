@@ -1,5 +1,6 @@
 # cnr_logger #
 
+
 [![Build Status][t]][1]
 [![codecov][c]][2] 
 [![Codacy Badge][y]][3]
@@ -13,9 +14,11 @@ The package has been designed to have a logger separated from the standard ros l
 
 ### Dependencies ###
 
-roscpp
+yaml-cpp
 
 ### Parameters ###
+
+This parameter must be included in the config file. Example in config/cnr_logger.yaml
 
 ```yaml
   ~/appenders: ['file', 'screen']                 # Mandatory
@@ -48,6 +51,11 @@ roscpp
                                                   # Default: true
 ```
 
+Files will be saved in /home/$USER$/cnr_logger
+
+TODO: file directory
+
+
 ### Class initialization and usage ###
 
 There are two constructors:
@@ -66,8 +74,8 @@ If the initialization failed, the class superimpose default values unless the us
 
 ```cpp
   #include <iostream>
-  #include <ros/ros.h>
   #include <cnr_logger/cnr_logger.h>
+  #include <unistd.h>
 
   std::shared_ptr<cnr_logger::TraceLogger> logger;
   void return_void_ok()
@@ -102,13 +110,17 @@ If the initialization failed, the class superimpose default values unless the us
 
   int main(int argc, char* argv[] )
   {
-    ros::init(argc, argv, "cnr_logger_test" );
-    ros::NodeHandle nh;
+    char buff[100];
+    getcwd(buff, 100);
+    std::string current_working_dir(buff);
+    std::string config_file_path = current_working_dir + "/../config/cnr_logger.yaml";
+
+    	
 
     logger.reset( new cnr_logger::TraceLogger ("log1", "/") );    // the first parameters is an ID for the logger,
                                                                    // the second parameter is the namespace where
                                                                    // to find the configuration parameters
-    while( ros::ok() )
+    for (size_t i = 0; i < 10000; i++)
     {
       ROS_INFO("Ciao-ros-info");
       ROS_DEBUG("Ciao-ros-debug");
@@ -116,8 +128,8 @@ If the initialization failed, the class superimpose default values unless the us
       LOG4CXX_INFO (*logger,"Ciao-log-1-info");
       LOG4CXX_DEBUG(*logger,"Ciao-log-1-debug");
 
-      ros::spinOnce();
-      ros::Duration(1.0).sleep();
+      usleep(10000);
+
     }
 
     return 1;
@@ -161,14 +173,7 @@ The macros to be used within the code are:
 #define CNR_TRACE( trace_logger, args)
 // =================
 
-
-// ================= THROTTLE
-#define CNR_FATAL_THROTTLE( trace_logger, period, args)
-#define CNR_ERROR_THROTTLE( trace_logger, period, args)
-#define CNR_WARN_THROTTLE(  trace_logger, period, args)
-#define CNR_INFO_THROTTLE(  trace_logger, period, args)
-#define CNR_DEBUG_THROTTLE( trace_logger, period, args)
-#define CNR_TRACE_THROTTLE( trace_logger, period, args)
+// ================= THROTTLE -- NOT AVAILABLE
 
 // ================= COND
 #define CNR_FATAL_COND( trace_logger, cond, args )
@@ -179,13 +184,7 @@ The macros to be used within the code are:
 #define CNR_TRACE_COND( trace_logger, cond, args )
 
 
-// ================= COND THROTTLE
-#define CNR_FATAL_COND_THROTTLE( trace_logger, cond, period, args )
-#define CNR_ERROR_COND_THROTTLE( trace_logger, cond, period, args )
-#define CNR_WARN_COND_THROTTLE(  trace_logger, cond, period, args )
-#define CNR_INFO_COND_THROTTLE(  trace_logger, cond, period, args )
-#define CNR_DEBUG_COND_THROTTLE( trace_logger, cond, period, args )
-#define CNR_TRACE_COND_THROTTLE( trace_logger, cond, period, args )
+// ================= COND THROTTLE -- NOT AVAILABLE
 
 // ============================== IN/OUT Functions to trace the begin and the end of a function
 #define CNR_TRACE_START(  logger, ... )
@@ -198,12 +197,6 @@ The macros to be used within the code are:
 #define CNR_RETURN_NOTOK( logger, var, ...)
 #define CNR_EXIT_EX(      logger, ok, ... )
 
-#define CNR_TRACE_START_THROTTLE(  logger, period, ... )
-#define CNR_RETURN_BOOL_THROTTLE(  logger, ret, period, ... )
-#define CNR_RETURN_TRUE_THROTTLE(  logger, period, ... )
-#define CNR_RETURN_FALSE_THROTTLE( logger, period, ... )
-#define CNR_RETURN_OK_THROTTLE(    logger, var, period, ... )
-#define CNR_RETURN_NOTOK_THROTTLE( logger, var, period, ...)
 ```
 
 ### Contact ###
