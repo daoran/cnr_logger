@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (New BSD License)
  *
- *  Copyright 2020 National Council of Research of Italy (CNR)
+ *  Copyright 2021 National Council of Research of Italy (CNR)
  *
  *  All rights reserved.
  *
@@ -35,8 +35,8 @@
 
 /**
  * @file cnr_logger.h
- * @author Nicola Pedrocchi
- * @date 25 Jun 2020
+ * @author Nicola Pedrocchi, Alessio Prini 
+ * @date 30 Gen 2021
  * @brief File containing TracLogger class definition.
  *
  * The class has been designed to have a logger separated from the standard ros logging functions.
@@ -51,8 +51,6 @@
 #include <map>
 #include <string>
 #include <iostream>
-#include <ros/file_log.h>
-#include <ros/console.h>
 
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
@@ -65,8 +63,14 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 
+#include <yaml-cpp/yaml.h>
+#include <fstream>
+#include <pwd.h>
+#include <dirent.h>
 
-
+#include <bits/stdc++.h> 
+#include <sys/stat.h> 
+#include <sys/types.h> 
 /**
  * @brief cnr_logger main namespace for the package
  */
@@ -77,15 +81,15 @@ namespace cnr_logger
  * @brief Utility to print nicely the time.
  * @param now Time to translate in string.
  */
-inline std::string to_string(const ros::Time& now)
-{
-  auto current_time = now.toBoost();
-  std::stringstream ss;
-  auto facet = new boost::posix_time::time_facet("%Y%m%d-%H:%M:%s");
-  ss.imbue(std::locale(std::locale::classic(), facet));
-  ss << current_time;
-  return ss.str();
-}
+// inline std::string to_string(const ros::Time& now)
+// {
+//   auto current_time = now.toBoost();
+//   std::stringstream ss;
+//   auto facet = new boost::posix_time::time_facet("%Y%m%d-%H:%M:%s");
+//   ss.imbue(std::locale(std::locale::classic(), facet));
+//   ss << current_time;
+//   return ss.str();
+// }
 
 /**
  * \class TraceLogger cnr_logger.h
@@ -110,8 +114,11 @@ public:
    * @param default_values: in the case the parameters are not found under the input namespace, the default
    * configuration is loaded. If FALSE, the function returns false if the parameters are not found.
    */
-  TraceLogger(const std::string& logger_id, const std::string& param_namespace,
-                const bool star_header=false, const bool default_values=true);
+  //TraceLogger(const std::string& logger_id, const std::string& param_namespace,
+                // const bool star_header=false, const bool default_values=true);
+
+  TraceLogger(const std::string& logger_id, const std::string& filename,
+                const bool star_header = false, const bool default_values = true);              
   ~TraceLogger();
 
   /**
@@ -124,7 +131,11 @@ public:
    * configuration is loaded. If FALSE, the function returns false if the parameters are not found.
    * @return True if correctly initialized
    */
-  bool init(const std::string& logger_id, const std::string& param_namespace,
+
+  // bool init(const std::string& logger_id, const std::string& param_namespace,
+  //             const bool star_header = false, const bool default_values = true);
+
+  bool init(const std::string& logger_id, const std::string& filename,
               const bool star_header = false, const bool default_values = true);
 
   TraceLogger& operator=(const TraceLogger& rhs);
@@ -158,7 +169,8 @@ public:
   std::map< AppenderType, log4cxx::LoggerPtr > loggers_;
   std::map< AppenderType, std::string        > levels_;
   std::string logger_id_;
-  std::string param_namespace_;
+  // std::string param_namespace_;
+  std::string filename_;
   bool default_values_;
   const double& defaultThrottleTime() const
   {

@@ -2,48 +2,41 @@ cmake_minimum_required(VERSION 3.10.2)
 
 project(cnr_logger)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+# Default to C99
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(catkin REQUIRED COMPONENTS roscpp roslint)
-find_package(Boost REQUIRED COMPONENTS date_time )
 
-if(CATKIN_ENABLE_TESTING AND ENABLE_COVERAGE_TESTING)
-  find_package(code_coverage REQUIRED)
-  # Add compiler flags for coverage instrumentation before defining any targets
-  APPEND_COVERAGE_COMPILER_FLAGS()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-catkin_package( INCLUDE_DIRS include LIBRARIES ${PROJECT_NAME} )
+# find dependencies
+# find_package(ament_cmake REQUIRED)
+# find_package(rclcpp REQUIRED)
 
-include_directories( include ${catkin_INCLUDE_DIRS} )
+find_package(PkgConfig)
+find_library(LOG4CXX_LIBRARY log4cxx)
+find_package(yaml-cpp)
 
-add_library(${PROJECT_NAME} src/${PROJECT_NAME}/cnr_logger.cpp )
-target_link_libraries( ${PROJECT_NAME} ${catkin_LIBRARIES} )
-if(${CMAKE_VERSION} VERSION_GREATER  "3.16.0") 
-	target_precompile_headers(${PROJECT_NAME} PUBLIC
-						<map>
-						<string>
-						<iostream>
-						<ros/file_log.h>
-						<ros/console.h>
-						<log4cxx/logger.h>
-						<log4cxx/basicconfigurator.h>
-						<log4cxx/propertyconfigurator.h>
-						<log4cxx/helpers/exception.h>
-						<log4cxx/rollingfileappender.h>
-						<log4cxx/consoleappender.h>
-						<log4cxx/patternlayout.h>
-						<boost/date_time/posix_time/posix_time.hpp>
-						<boost/date_time/posix_time/posix_time_io.hpp>)
-endif()
-set(ROSLINT_CPP_OPTS "--filter=-whitespace/braces")
-roslint_cpp( src/${PROJECT_NAME}/cnr_logger.cpp )
+include_directories(include)
+
+add_library(cnr_logger src/cnr_logger/cnr_logger.cpp)
+target_link_libraries(cnr_logger log4cxx yaml-cpp)
+
+add_executable( ${PROJECT_NAME}_example src/cnr_logger_example.cpp)
+target_link_libraries( ${PROJECT_NAME}_example ${PROJECT_NAME} ${catkin_LIBRARIES} )
+
+
 
 #add_executable( ${PROJECT_NAME}_example src/cnr_logger_example.cpp)
 #target_link_libraries( ${PROJECT_NAME}_example ${PROJECT_NAME} ${catkin_LIBRARIES} )
@@ -54,34 +47,34 @@ roslint_cpp( src/${PROJECT_NAME}/cnr_logger.cpp )
 #############
 
 ## Add gtest based cpp test target and link libraries
-if(CATKIN_ENABLE_TESTING)
-  find_package(rostest REQUIRED)
-  add_rostest_gtest(${PROJECT_NAME}_test test/test.launch test/test_cnr_logger.cpp)
-  target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${catkin_LIBRARIES} ${rostest_LIBRARIES} )
+#if(CATKIN_ENABLE_TESTING)
+#  find_package(rostest REQUIRED)
+#  add_rostest_gtest(${PROJECT_NAME}_test test/test.launch test/test_cnr_logger.cpp)
+#  target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${catkin_LIBRARIES} ${rostest_LIBRARIES} )
 
-  if(ENABLE_COVERAGE_TESTING)
-    set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test*")
-    add_code_coverage(
-      NAME ${PROJECT_NAME}_coverage_report
-      DEPENDENCIES ${PROJECT_NAME}_test
-    )
-  endif()
-endif()
+#  if(ENABLE_COVERAGE_TESTING)
+#    set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test*")
+#    add_code_coverage(
+#      NAME ${PROJECT_NAME}_coverage_report
+#      DEPENDENCIES ${PROJECT_NAME}_test
+#    )
+#  endif()
+#endif()
 
 
 
 ## Mark cpp header files for installation
- install(DIRECTORY include/${PROJECT_NAME}/
-   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-   FILES_MATCHING PATTERN "*.h"
-   PATTERN ".git" EXCLUDE
- )
+# install(DIRECTORY include/${PROJECT_NAME}/
+#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+#   FILES_MATCHING PATTERN "*.h"
+#   PATTERN ".git" EXCLUDE
+# )
 
-install(TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+#install(TARGETS ${PROJECT_NAME}
+#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
 
 ## LINT
-set(ROSLINT_CPP_OPTS "--filter=-runtime/references,-runtime/int,--max-line-length=180")
+#set(ROSLINT_CPP_OPTS "--filter=-runtime/references,-runtime/int,--max-line-length=180")

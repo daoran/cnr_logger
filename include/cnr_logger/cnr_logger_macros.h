@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (New BSD License)
  *
- *  Copyright 2020 National Council of Research of Italy (CNR)
+ *  Copyright 2021 National Council of Research of Italy (CNR)
  *
  *  All rights reserved.
  *
@@ -35,8 +35,8 @@
 
 /**
  * @file cnr_logger_macros.h
- * @author Nicola Pedrocchi
- * @date 25 Jun 2020
+ * @author Nicola Pedrocchi, ALessio Prini
+ * @date 30 Gen 2021
  * @brief File containing the macro definition.
  *
  * The macro have been designed to follow the basic log4cxx structure (and ROS).
@@ -56,7 +56,6 @@
 #include <log4cxx/rollingfileappender.h>
 #include <log4cxx/consoleappender.h>
 #include <log4cxx/patternlayout.h>
-#include <ros/console.h>
 #include <cnr_logger/cnr_logger.h>
 
 namespace log4cxx
@@ -284,7 +283,8 @@ inline cnr_logger::TraceLogger* getTraceLogger(TraceLoggerPtr logger)
     return logger.get();
   else
   {
-    ROS_ERROR("The logger is not initialized. Fake loggin enabled.");
+    // ROS_ERROR("The logger is not initialized. Fake loggin enabled.");
+    std::cerr << "The logger is not initialized. Fake loggin enabled." << std::endl;
     std::shared_ptr<TraceLogger> ret(new TraceLogger());
     return ret.get();
   }
@@ -380,80 +380,80 @@ do\
 // =================
 
 
-// ================= THROTTLE
-#define CNR_FATAL_THROTTLE(trace_logger, period, args)\
-  do \
-  { \
-    static double __log_throttle_last_hit__ = 0.0; \
-    double __log_throttle_now__ = ::ros::Time::now().toSec(); \
-    if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
-    { \
-      __log_throttle_last_hit__ = __log_throttle_now__; \
-      CNR_FATAL(trace_logger, args); \
-    } \
-  } while (false)
+// // ================= THROTTLE
+// #define CNR_FATAL_THROTTLE(trace_logger, period, args)\
+//   do \
+//   { \
+//     static double __log_throttle_last_hit__ = 0.0; \
+//     double __log_throttle_now__ = ::ros::Time::now().toSec(); \
+//     if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
+//     { \
+//       __log_throttle_last_hit__ = __log_throttle_now__; \
+//       CNR_FATAL(trace_logger, args); \
+//     } \
+//   } while (false)
 
-#define CNR_ERROR_THROTTLE(trace_logger, period, args)\
-  do \
-  { \
-    static double __log_throttle_last_hit__ = 0.0; \
-    double __log_throttle_now__ = ::ros::Time::now().toSec(); \
-    if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
-    { \
-      __log_throttle_last_hit__ = __log_throttle_now__; \
-      CNR_ERROR(trace_logger, args); \
-    } \
-  } while (false)
+// #define CNR_ERROR_THROTTLE(trace_logger, period, args)\
+//   do \
+//   { \
+//     static double __log_throttle_last_hit__ = 0.0; \
+//     double __log_throttle_now__ = ::ros::Time::now().toSec(); \
+//     if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
+//     { \
+//       __log_throttle_last_hit__ = __log_throttle_now__; \
+//       CNR_ERROR(trace_logger, args); \
+//     } \
+//   } while (false)
 
-#define CNR_WARN_THROTTLE(trace_logger, period, args)\
-  do \
-  { \
-    static double __log_throttle_last_hit__ = 0.0; \
-    double __log_throttle_now__ = ::ros::Time::now().toSec(); \
-    if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
-    { \
-      __log_throttle_last_hit__ = __log_throttle_now__; \
-      CNR_WARN(trace_logger, args); \
-    } \
-  } while (false)
+// #define CNR_WARN_THROTTLE(trace_logger, period, args)\
+//   do \
+//   { \
+//     static double __log_throttle_last_hit__ = 0.0; \
+//     double __log_throttle_now__ = ::ros::Time::now().toSec(); \
+//     if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
+//     { \
+//       __log_throttle_last_hit__ = __log_throttle_now__; \
+//       CNR_WARN(trace_logger, args); \
+//     } \
+//   } while (false)
 
-#define CNR_INFO_THROTTLE(trace_logger, period, args)\
-  do \
-  { \
-    static double __log_throttle_last_hit__ = 0.0; \
-    double __log_throttle_now__ = ::ros::Time::now().toSec(); \
-    if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
-    { \
-      __log_throttle_last_hit__ = __log_throttle_now__; \
-      CNR_INFO(trace_logger, args); \
-    } \
-  } while (false)
+// #define CNR_INFO_THROTTLE(trace_logger, period, args)\
+//   do \
+//   { \
+//     static double __log_throttle_last_hit__ = 0.0; \
+//     double __log_throttle_now__ = ::ros::Time::now().toSec(); \
+//     if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
+//     { \
+//       __log_throttle_last_hit__ = __log_throttle_now__; \
+//       CNR_INFO(trace_logger, args); \
+//     } \
+//   } while (false)
 
-#define CNR_DEBUG_THROTTLE(trace_logger, period, args)\
-  do \
-  { \
-    static double __log_throttle_last_hit__ = 0.0; \
-    double __log_throttle_now__ = ::ros::Time::now().toSec(); \
-    if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
-    { \
-      __log_throttle_last_hit__ = __log_throttle_now__; \
-      CNR_DEBUG(trace_logger, args); \
-    } \
-  } while (false)
+// #define CNR_DEBUG_THROTTLE(trace_logger, period, args)\
+//   do \
+//   { \
+//     static double __log_throttle_last_hit__ = 0.0; \
+//     double __log_throttle_now__ = ::ros::Time::now().toSec(); \
+//     if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
+//     { \
+//       __log_throttle_last_hit__ = __log_throttle_now__; \
+//       CNR_DEBUG(trace_logger, args); \
+//     } \
+//   } while (false)
 
 
-#define CNR_TRACE_THROTTLE(trace_logger, period, args)\
-  do \
-  { \
-    static double __log_throttle_last_hit__ = 0.0; \
-    double __log_throttle_now__ = ::ros::Time::now().toSec(); \
-    if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
-    { \
-      __log_throttle_last_hit__ = __log_throttle_now__; \
-      CNR_TRACE(trace_logger, args); \
-    } \
-  } while (false)
-// =================
+// #define CNR_TRACE_THROTTLE(trace_logger, period, args)\
+//   do \
+//   { \
+//     static double __log_throttle_last_hit__ = 0.0; \
+//     double __log_throttle_now__ = ::ros::Time::now().toSec(); \
+//     if (ROSCONSOLE_THROTTLE_CHECK(__log_throttle_now__, __log_throttle_last_hit__, period))\
+//     { \
+//       __log_throttle_last_hit__ = __log_throttle_now__; \
+//       CNR_TRACE(trace_logger, args); \
+//     } \
+//   } while (false)
+// // =================
 
 
 // ================= COND
@@ -494,42 +494,42 @@ do\
   } while (false)
 
 
-// ================= COND THROTTLE
-#define CNR_FATAL_COND_THROTTLE(trace_logger, cond, period, args)\
-do\
-{\
-  if (cond) { CNR_FATAL_THROTTLE(trace_logger, period, args); }\
-} while (false)
+// // ================= COND THROTTLE
+// #define CNR_FATAL_COND_THROTTLE(trace_logger, cond, period, args)\
+// do\
+// {\
+//   if (cond) { CNR_FATAL_THROTTLE(trace_logger, period, args); }\
+// } while (false)
 
-#define CNR_ERROR_COND_THROTTLE(trace_logger, cond, period, args)\
-do\
-{\
-  if (cond) { CNR_ERROR_THROTTLE(trace_logger, period, args); }\
-} while (false)
+// #define CNR_ERROR_COND_THROTTLE(trace_logger, cond, period, args)\
+// do\
+// {\
+//   if (cond) { CNR_ERROR_THROTTLE(trace_logger, period, args); }\
+// } while (false)
 
-#define CNR_WARN_COND_THROTTLE(trace_logger, cond, period, args)\
-do\
-{\
-  if (cond) { CNR_WARN_THROTTLE(trace_logger, period, args); }\
-} while (false)
+// #define CNR_WARN_COND_THROTTLE(trace_logger, cond, period, args)\
+// do\
+// {\
+//   if (cond) { CNR_WARN_THROTTLE(trace_logger, period, args); }\
+// } while (false)
 
-#define CNR_INFO_COND_THROTTLE(trace_logger, cond, period, args)\
-do\
-{\
-  if (cond) { CNR_INFO_THROTTLE(trace_logger, period, args); }\
-} while (false)
+// #define CNR_INFO_COND_THROTTLE(trace_logger, cond, period, args)\
+// do\
+// {\
+//   if (cond) { CNR_INFO_THROTTLE(trace_logger, period, args); }\
+// } while (false)
 
-#define CNR_DEBUG_COND_THROTTLE(trace_logger, cond, period, args)\
-do\
-{\
-  if (cond) { CNR_DEBUG_THROTTLE(trace_logger, period, args); }\
-} while (false)
+// #define CNR_DEBUG_COND_THROTTLE(trace_logger, cond, period, args)\
+// do\
+// {\
+//   if (cond) { CNR_DEBUG_THROTTLE(trace_logger, period, args); }\
+// } while (false)
 
-#define CNR_TRACE_COND_THROTTLE(trace_logger, cond, period, args)\
-do\
-{\
-  if (cond) { CNR_TRACE_THROTTLE(trace_logger, period, args); }\
-} while (false)
+// #define CNR_TRACE_COND_THROTTLE(trace_logger, cond, period, args)\
+// do\
+// {\
+//   if (cond) { CNR_TRACE_THROTTLE(trace_logger, period, args); }\
+// } while (false)
 
 
 //CNR_INFO_COND(logger, (std::string(__VA_ARGS__).length() > 0), std::string(__VA_ARGS__));
